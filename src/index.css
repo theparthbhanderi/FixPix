@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light Mode Defaults */
+    --bg-background: 245 247 250;
+    --bg-surface: 255 255 255;
+    --bg-surface-highlight: 240 242 245;
+
+    --text-main: 23 23 23;
+    /* Nearly Black */
+    --text-secondary: 75 85 99;
+    /* Gray-600 */
+    --text-muted: 107 114 128;
+
+    --border-color: 226 232 240;
+    /* Gray-200 */
+    --border-light: 203 213 225;
+
+    --primary-rgb: 37 99 235;
+    /* Blue-600 */
+
+    --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    --glass-bg: 255 255 255;
+    --glass-border: 255 255 255;
+  }
+
+  /* Dark Mode Overrides */
+  .dark {
+    --bg-background: 18 18 18;
+    --bg-surface: 30 30 30;
+    --bg-surface-highlight: 42 42 42;
+
+    --text-main: 224 224 224;
+    --text-secondary: 160 160 160;
+    --text-muted: 107 114 128;
+
+    --border-color: 51 51 51;
+    --border-light: 64 64 64;
+
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --glass-bg: 30 30 30;
+    --glass-border: 255 255 255;
+  }
+
+  body {
+    @apply bg-background text-text-main font-sans antialiased transition-colors duration-300;
+    /* Clean background, gradients handled via utility classes if needed */
+  }
+}
+
+@layer utilities {
+
+  /* Typography System */
+  .h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight;
+  }
+
+  .h2 {
+    @apply text-3xl md:text-4xl font-bold tracking-tight leading-tight;
+  }
+
+  .h3 {
+    @apply text-xl md:text-2xl font-semibold tracking-wide;
+  }
+
+  .p-large {
+    @apply text-lg text-text-secondary leading-relaxed;
+  }
+
+  .caption {
+    @apply text-sm text-text-muted;
+  }
+
+  /* Glass Components */
+  .glass {
+    background: rgb(var(--glass-bg) / 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgb(var(--glass-border) / 0.15);
+    box-shadow: var(--shadow-glass);
+  }
+
+  .glass-panel {
+    background: rgb(var(--glass-bg) / 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgb(var(--glass-border) / 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .input-field {
+    @apply w-full bg-surface/50 border border-white/10 rounded-xl px-4 py-3 text-text-main focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all placeholder:text-text-muted backdrop-blur-sm;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 15px rgb(var(--primary-rgb) / 0.6);
+  }
+
+  /* Cyber Gradient */
+  .bg-gradient-cyber {
+    background-image: radial-gradient(circle at 50% 50%, #1e1e2e 0%, #121212 100%);
+  }
+
+  .dark .bg-gradient-cyber {
+    background-image: radial-gradient(circle at 50% 50%, #1e1e2e 0%, #121212 100%);
+  }
+
+  .bg-gradient-cyber-light {
+    background-image: radial-gradient(circle at 50% 50%, #ffffff 0%, #f3f4f6 100%);
+  }
+}
+
+@layer components {
+
+  /* Button Base Styles (if used outside React component) */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:pointer-events-none;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border-color) / 1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--text-secondary) / 0.5);
+}
