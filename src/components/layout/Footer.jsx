@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail, Heart, Sparkles } from 'lucide-react';
+import { Github, Instagram, Linkedin, Mail, Heart, Sparkles } from 'lucide-react';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     const socialLinks = [
-        { icon: Github, href: 'https://github.com', label: 'GitHub' },
-        { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-        { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-        { icon: Mail, href: 'mailto:hello@fixpix.com', label: 'Email' },
+        { icon: Github, href: 'https://github.com/theparthbhanderi', label: 'GitHub' },
+        { icon: Instagram, href: 'https://www.instagram.com/theparthbhanderi/', label: 'Instagram' },
+        { icon: Linkedin, href: 'https://www.linkedin.com/in/parth-bhanderi-366433330', label: 'LinkedIn' },
+        { icon: Mail, href: 'mailto:theparthbhanderi@gmail.com', label: 'Email' },
     ];
 
     const quickLinks = [

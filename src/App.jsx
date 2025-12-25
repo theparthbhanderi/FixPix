@@ -14,6 +14,7 @@ import SettingsPage from './pages/SettingsPage';
 import BatchProcessor from './components/features/batch/BatchProcessor';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import AboutPage from './pages/AboutPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { ImageProvider } from './context/ImageContext';
 import GlobalErrorBoundary from './utils/GlobalErrorBoundary';
@@ -31,6 +32,7 @@ function App() {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/signup" element={<SignupPage />} />
+                  <Route path="/about" element={<AboutPage />} />
                   <Route
                     path="/app"
                     element={

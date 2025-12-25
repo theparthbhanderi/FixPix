@@ -41,6 +41,7 @@ const Navbar = () => {
                     <a href="#features" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">Features</a>
                     <a href="#how-it-works" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">How it works</a>
                     <a href="#testimonials" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">Testimonials</a>
+                    <Link to="/about" className="text-sm font-medium text-text-secondary hover:text-primary transition-colors">About Dev</Link>
                 </div>
 
                 <div className="hidden md:flex items-center space-x-4">
