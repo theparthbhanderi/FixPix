@@ -5,21 +5,31 @@ import Button from '../components/ui/Button';
 import Logo from '../components/ui/Logo';
 import { Lock, User as UserIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useToast } from '../components/ui/Toast';
 
 const LoginPage = () => {
     const { loginUser } = useContext(AuthContext);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const toast = useToast();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+
         const success = await loginUser(username, password);
+        setIsLoading(false);
+
         if (success) {
+            toast.success('Welcome back!', { title: 'Login Successful' });
             navigate('/app');
         } else {
             setError("Invalid credentials. Please try again.");
+            toast.error('Invalid credentials. Please try again.');
         }
     };
 

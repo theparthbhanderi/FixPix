@@ -91,7 +91,7 @@ const Sidebar = () => {
                 </button>
 
                 <div className="bg-surface p-3 rounded-2xl flex items-center gap-3 border border-border-light">
-                    <div className="w-8 h-8 rounded-full bg-accent-yellow flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shadow-neon">
                         {user ? user.username[0].toUpperCase() : 'U'}
                     </div>
                     <div className="overflow-hidden">

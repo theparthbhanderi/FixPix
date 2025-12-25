@@ -1,9 +1,18 @@
 import React, { useState, useContext } from 'react';
-import { Sliders, Zap, Check, Wand2, Download, AlertCircle, Upload, Crop, Undo, Redo, RotateCcw, Sparkles, Eraser } from 'lucide-react';
+import { Sliders, Zap, Check, Wand2, Download, AlertCircle, Upload, Crop, Undo, Redo, RotateCcw, Sparkles, Eraser, Palette } from 'lucide-react';
 import Button from '../ui/Button';
 import SmartTooltip from '../ui/SmartTooltip';
 import { cn } from '../../lib/utils';
 import { ImageContext } from '../../context/ImageContext';
+import { apiEndpoints } from '../../lib/api';
+import { useToast } from '../ui/Toast';
+
+// Keyboard shortcut hint badge
+const KeyboardHint = ({ shortcut }) => (
+    <span className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-white/10 rounded border border-white/20 text-text-secondary hidden md:inline">
+        {shortcut}
+    </span>
+);
 
 const ToolTab = ({ icon: Icon, label, active, onClick }) => (
     <button
@@ -27,7 +36,7 @@ const Toggle = ({ label, enabled, onChange }) => (
             onClick={() => onChange(!enabled)}
             className={cn(
                 "w-12 h-6 rounded-full relative transition-colors duration-200",
-                enabled ? "bg-primary shadow-neon" : "bg-white/10"
+                enabled ? "bg-primary shadow-neon" : "bg-gray-300 dark:bg-white/10"
             )}
         >
             <div className={cn(
@@ -51,7 +60,7 @@ const RangeSlider = ({ label, value, min, max, step, onChange }) => (
             step={step}
             value={value}
             onChange={(e) => onChange(parseFloat(e.target.value))}
-            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+            className="w-full h-1 bg-gray-300 dark:bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
         />
     </div>
 );
@@ -77,15 +86,26 @@ const ToolsPanel = () => {
     } = useContext(ImageContext);
 
     const [activeTab, setActiveTab] = useState('enhance');
+    const toast = useToast();
 
     const handleDownload = () => {
         if (!currentProject?.id) return;
-        const downloadUrl = `http://localhost:8000/api/images/${currentProject.id}/download/`;
+        const downloadUrl = apiEndpoints.downloadImage(currentProject.id);
         window.open(downloadUrl, '_blank');
+        toast.success('Download started!');
+    };
+
+    const handleGenerate = async () => {
+        try {
+            await processImage();
+            toast.success('Image processed successfully!', { title: 'Processing Complete' });
+        } catch (err) {
+            toast.error('Processing failed. Please try again.');
+        }
     };
 
     return (
-        <aside className="w-80 glass-panel h-[calc(100vh-2rem)] fixed right-4 top-4 rounded-3xl z-20 shadow-neon flex flex-col overflow-hidden transition-all duration-300">
+        <aside className="w-80 glass-panel h-[calc(100vh-2rem)] fixed right-4 top-4 rounded-3xl z-20 shadow-neon flex flex-col transition-all duration-300">
             {/* Header / Title */}
             <div className="p-4 border-b border-white/5 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-text-main">Adjustments</h2>
@@ -123,12 +143,18 @@ const ToolsPanel = () => {
                     active={activeTab === 'adjust'}
                     onClick={() => setActiveTab('adjust')}
                 />
+                <ToolTab
+                    icon={Palette}
+                    label="Filters"
+                    active={activeTab === 'filters'}
+                    onClick={() => setActiveTab('filters')}
+                />
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
                 {activeTab === 'enhance' && (
                     <div className="space-y-6">
-                        <div className="bg-surface/50 p-4 rounded-2xl border border-white/5">
+                        <div className="bg-gray-100 dark:bg-surface/50 p-4 rounded-2xl border border-gray-200 dark:border-white/5">
                             <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">Restore & Fix</h3>
 
                             <SmartTooltip
@@ -159,7 +185,7 @@ const ToolsPanel = () => {
                             </SmartTooltip>
                         </div>
 
-                        <div className="bg-surface/50 p-4 rounded-2xl border border-white/5">
+                        <div className="bg-gray-100 dark:bg-surface/50 p-4 rounded-2xl border border-gray-200 dark:border-white/5">
                             <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4"> Creative</h3>
                             <SmartTooltip
                                 title="AI Colorization"
@@ -175,7 +201,7 @@ const ToolsPanel = () => {
                             </SmartTooltip>
                         </div>
 
-                        <div className="bg-surface/50 p-4 rounded-2xl border border-white/5">
+                        <div className="bg-gray-100 dark:bg-surface/50 p-4 rounded-2xl border border-gray-200 dark:border-white/5">
                             <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">Upscaling</h3>
                             <div className="grid grid-cols-2 gap-3">
                                 {[2, 4].map((scale) => (
@@ -186,7 +212,7 @@ const ToolsPanel = () => {
                                             "py-2 rounded-lg border text-sm font-bold transition-all",
                                             settings.upscaleX === scale
                                                 ? "bg-primary text-white border-primary shadow-neon"
-                                                : "bg-transparent text-text-secondary border-white/10 hover:border-primary/50 hover:text-text-main"
+                                                : "bg-white dark:bg-transparent text-text-secondary border-gray-300 dark:border-white/10 hover:border-primary/50 hover:text-text-main"
                                         )}
                                     >
                                         {scale}x
@@ -199,7 +225,7 @@ const ToolsPanel = () => {
 
                 {activeTab === 'magic' && (
                     <div className="space-y-6">
-                        <div className="bg-surface/50 p-4 rounded-2xl border border-white/5 space-y-5">
+                        <div className="bg-gray-100 dark:bg-surface/50 p-4 rounded-2xl border border-gray-200 dark:border-white/5 space-y-5">
                             <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">AI Magic Tools</h3>
 
                             <Toggle
@@ -217,7 +243,7 @@ const ToolsPanel = () => {
                                 *Note: Background removal uses AI or GrabCut fallback.
                             </p>
 
-                            <div className="pt-4 border-t border-white/10">
+                            <div className="pt-4 border-t border-gray-200 dark:border-white/10">
                                 <h4 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">Object Eraser</h4>
                                 <Button
                                     variant={isMasking ? "primary" : "secondary"}
@@ -234,7 +260,7 @@ const ToolsPanel = () => {
 
                 {activeTab === 'adjust' && (
                     <div className="space-y-6">
-                        <div className="bg-surface/50 p-4 rounded-2xl border border-white/5 space-y-5">
+                        <div className="bg-gray-100 dark:bg-surface/50 p-4 rounded-2xl border border-gray-200 dark:border-white/5 space-y-5">
                             <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Color Adjustments</h3>
 
                             <RangeSlider
@@ -258,12 +284,67 @@ const ToolsPanel = () => {
                         </div>
                     </div>
                 )}
+
+                {activeTab === 'filters' && (
+                    <div className="space-y-6">
+                        {/* Filter Presets */}
+                        <div className="bg-gray-100 dark:bg-surface/50 p-4 rounded-2xl border border-gray-200 dark:border-white/5">
+                            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-4">Filter Presets</h3>
+                            <div className="grid grid-cols-2 gap-2">
+                                {[
+                                    { key: 'none', label: 'None', color: 'bg-gray-500' },
+                                    { key: 'vintage', label: 'Vintage', color: 'bg-amber-600' },
+                                    { key: 'cinematic', label: 'Cinematic', color: 'bg-blue-600' },
+                                    { key: 'warm', label: 'Warm', color: 'bg-orange-500' },
+                                    { key: 'cool', label: 'Cool', color: 'bg-cyan-500' },
+                                    { key: 'bw_classic', label: 'B&W', color: 'bg-gray-600' },
+                                    { key: 'fade', label: 'Fade', color: 'bg-rose-400' },
+                                    { key: 'vivid', label: 'Vivid', color: 'bg-purple-500' }
+                                ].map((filter) => (
+                                    <button
+                                        key={filter.key}
+                                        onClick={() => updateSettings({ filterPreset: filter.key })}
+                                        className={cn(
+                                            "py-2 px-3 rounded-lg border text-sm font-medium transition-all flex items-center gap-2",
+                                            (settings.filterPreset || 'none') === filter.key
+                                                ? "bg-primary/20 text-primary border-primary shadow-sm"
+                                                : "bg-white dark:bg-white/5 text-text-secondary border-gray-300 dark:border-white/10 hover:bg-white/50 hover:dark:bg-white/10 hover:text-text-main"
+                                        )}
+                                    >
+                                        <span className={cn("w-3 h-3 rounded-full", filter.color)}></span>
+                                        {filter.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Advanced Controls */}
+                        <div className="bg-gray-100 dark:bg-surface/50 p-4 rounded-2xl border border-gray-200 dark:border-white/5 space-y-5">
+                            <h3 className="text-xs font-bold text-text-secondary uppercase tracking-wider mb-2">Advanced</h3>
+
+                            <Toggle
+                                label="Auto White Balance"
+                                enabled={settings.whiteBalance || false}
+                                onChange={(v) => updateSettings({ whiteBalance: v })}
+                            />
+
+                            <RangeSlider
+                                label="Noise Reduction"
+                                value={settings.denoiseStrength || 0}
+                                min={0} max={100} step={10}
+                                onChange={(v) => updateSettings({ denoiseStrength: v })}
+                            />
+                            <p className="text-xs text-text-muted">Higher values = smoother but may lose detail</p>
+                        </div>
+                    </div>
+                )}
+
                 {activeTab === 'history' && (
                     <HistoryPanel />
                 )}
             </div>
 
-            <div className="p-6 border-t border-white/5 bg-black/20 space-y-3">
+            <div className="p-6 border-t border-white/5 bg-black/20 space-y-3 rounded-b-3xl">
                 {/* Upload New Button */}
                 {selectedImage && (
                     <div className="relative">
@@ -281,14 +362,15 @@ const ToolsPanel = () => {
                     </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2">
                     {/* Always allow generating/updating */}
                     <Button
                         variant="primary"
                         size="lg"
-                        className={cn("shadow-lg flex-1", processedImage ? "bg-primary" : "w-full")}
+                        className="shadow-lg w-full"
                         disabled={!selectedImage || isProcessing}
-                        onClick={processImage}
+                        onClick={handleGenerate}
+                        data-tour="generate-btn"
                     >
                         {isProcessing ? (
                             <>
@@ -297,6 +379,7 @@ const ToolsPanel = () => {
                         ) : (
                             <>
                                 <Zap className="w-5 h-5 mr-2" /> {processedImage ? "Update" : "Generate"}
+                                <KeyboardHint shortcut="⌘G" />
                             </>
                         )}
                     </Button>
@@ -305,10 +388,12 @@ const ToolsPanel = () => {
                         <Button
                             variant="success"
                             size="lg"
-                            className="flex-1"
+                            className="w-full"
                             onClick={handleDownload}
+                            data-tour="download-btn"
                         >
                             <Download className="w-5 h-5 mr-2" /> Save
+                            <KeyboardHint shortcut="⌘S" />
                         </Button>
                     )}
                 </div>

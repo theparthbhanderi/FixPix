@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react';
+import { apiEndpoints } from '../lib/api';
 
 const AuthContext = createContext();
 
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     let [loading, setLoading] = useState(true);
 
     const loginUser = async (username, password) => {
-        const response = await fetch('http://localhost:8000/api/token/', {
+        const response = await fetch(apiEndpoints.token, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -34,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     const registerUser = async (username, email, password) => {
-        const response = await fetch('http://localhost:8000/api/register/', {
+        const response = await fetch(apiEndpoints.register, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

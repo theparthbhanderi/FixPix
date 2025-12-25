@@ -91,6 +91,20 @@ class ImageViewSet(viewsets.ModelViewSet):
             if settings.get('autoEnhance', False):
                  current_img = AIEngine.auto_enhance(current_img, return_path=False)
 
+            # 6.5. White Balance Correction
+            if settings.get('whiteBalance', False):
+                 current_img = AIEngine.correct_white_balance(current_img, return_path=False)
+
+            # 6.6. Advanced Denoising (if strength specified)
+            denoise_strength = int(settings.get('denoiseStrength', 0))
+            if denoise_strength > 0:
+                 current_img = AIEngine.denoise_advanced(current_img, strength=denoise_strength, return_path=False)
+
+            # 6.7. Filter Preset
+            filter_preset = settings.get('filterPreset', '')
+            if filter_preset and filter_preset != 'none':
+                 current_img = AIEngine.apply_filter_preset(current_img, filter_preset, return_path=False)
+
             # 7. Background Removal
             if settings.get('removeBackground', False):
                  try:

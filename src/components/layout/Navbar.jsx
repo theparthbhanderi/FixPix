@@ -44,14 +44,23 @@ const Navbar = () => {
                 </div>
 
                 <div className="hidden md:flex items-center space-x-4">
-                    {/* Theme Toggle */}
-                    <button
+                    {/* Theme Toggle with Animation */}
+                    <motion.button
                         onClick={toggleTheme}
-                        className="p-2 rounded-full hover:bg-surface-highlight text-text-secondary hover:text-text-main transition-colors"
+                        className="p-2.5 rounded-xl bg-surface-elevated hover:bg-primary/20 text-text-secondary hover:text-primary transition-colors border border-border-light"
                         title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                     >
-                        {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                    </button>
+                        <motion.div
+                            key={theme}
+                            initial={{ rotate: -90, opacity: 0 }}
+                            animate={{ rotate: 0, opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                        </motion.div>
+                    </motion.button>
 
                     {user ? (
                         <>

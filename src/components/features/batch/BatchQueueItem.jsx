@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, CheckCircle, AlertCircle, Loader2, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { getMediaUrl } from '../../../lib/api';
 
 const BatchQueueItem = ({ item, onRemove }) => {
     return (
@@ -13,9 +14,9 @@ const BatchQueueItem = ({ item, onRemove }) => {
         >
             {/* Status Line Indicator */}
             <div className={`absolute left-0 top-0 bottom-0 w-1 ${item.status === 'completed' ? 'bg-secondary' :
-                    item.status === 'processing' ? 'bg-primary animate-pulse' :
-                        item.status === 'error' ? 'bg-red-500' :
-                            'bg-gray-300 dark:bg-gray-600'
+                item.status === 'processing' ? 'bg-primary animate-pulse' :
+                    item.status === 'error' ? 'bg-red-500' :
+                        'bg-gray-300 dark:bg-gray-600'
                 }`} />
 
             {/* Thumbnail */}
@@ -33,9 +34,9 @@ const BatchQueueItem = ({ item, onRemove }) => {
                 <p className="text-sm font-bold text-text-main truncate">{item.file.name}</p>
                 <div className="flex items-center gap-2 text-xs mt-1">
                     <span className={`px-2 py-0.5 rounded-full font-medium ${item.status === 'completed' ? 'bg-secondary/10 text-secondary' :
-                            item.status === 'processing' ? 'bg-primary/10 text-primary' :
-                                item.status === 'error' ? 'bg-red-500/10 text-red-500' :
-                                    'bg-gray-200 dark:bg-gray-700 text-text-secondary'
+                        item.status === 'processing' ? 'bg-primary/10 text-primary' :
+                            item.status === 'error' ? 'bg-red-500/10 text-red-500' :
+                                'bg-gray-200 dark:bg-gray-700 text-text-secondary'
                         }`}>
                         {item.status.toUpperCase()}
                     </span>
@@ -47,7 +48,7 @@ const BatchQueueItem = ({ item, onRemove }) => {
             <div className="flex items-center gap-2">
                 {item.status === 'completed' && (
                     <a
-                        href={`http://localhost:8000${item.resultUrl}`}
+                        href={getMediaUrl(item.resultUrl)}
                         download={`restored_${item.file.name}`}
                         className="p-2 rounded-full hover:bg-surface-highlight text-text-secondary hover:text-primary transition-colors"
                         title="Download Result"

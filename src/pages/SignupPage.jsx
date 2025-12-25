@@ -5,6 +5,7 @@ import Button from '../components/ui/Button';
 import Logo from '../components/ui/Logo';
 import { Lock, User as UserIcon, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useToast } from '../components/ui/Toast';
 
 const SignupPage = () => {
     const { registerUser } = useContext(AuthContext);
@@ -12,16 +13,25 @@ const SignupPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const toast = useToast();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+
         const result = await registerUser(username, email, password);
+        setIsLoading(false);
+
         if (result === true) {
+            toast.success('Account created successfully!', { title: 'Welcome to FixPix' });
             navigate('/app');
         } else {
-            // Basic error handling - can be improved to parse specific field errors
-            setError("Registration failed. Username might be taken.");
+            const errorMsg = "Registration failed. Username might be taken.";
+            setError(errorMsg);
+            toast.error(errorMsg);
         }
     };
 

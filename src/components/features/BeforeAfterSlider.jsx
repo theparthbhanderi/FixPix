@@ -8,21 +8,39 @@ const BeforeAfterSlider = ({ before, after, className }) => {
     const [isDragging, setIsDragging] = useState(false);
     const containerRef = useRef(null);
 
-    const handleMove = (event) => {
+    const handleMove = (clientX) => {
         if (containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
-            const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
+            const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
             const percent = Math.max(0, Math.min((x / rect.width) * 100, 100));
             setSliderPosition(percent);
         }
     };
 
-    const handleMouseDown = () => setIsDragging(true);
+    const onMouseMove = (e) => handleMove(e.clientX);
+    const onTouchMove = (e) => handleMove(e.touches[0].clientX);
+
+    const handleMouseDown = (e) => {
+        e.preventDefault(); // Prevent text selection
+        setIsDragging(true);
+        handleMove(e.clientX);
+    };
+
+    const handleTouchStart = (e) => {
+        setIsDragging(true);
+        handleMove(e.touches[0].clientX);
+    };
+
+    const handleTouchMove = (e) => {
+        if (isDragging) {
+            handleMove(e.touches[0].clientX);
+        }
+    };
     const handleMouseUp = () => setIsDragging(false);
 
     useEffect(() => {
         const handleGlobalMove = (e) => {
-            if (isDragging) handleMove(e);
+            if (isDragging) onMouseMove(e);
         };
 
         const handleGlobalUp = () => {
@@ -32,6 +50,7 @@ const BeforeAfterSlider = ({ before, after, className }) => {
         if (isDragging) {
             window.addEventListener('mousemove', handleGlobalMove);
             window.addEventListener('mouseup', handleGlobalUp);
+            // Touch events are handled on element directly
         }
 
         return () => {
@@ -80,30 +99,26 @@ const BeforeAfterSlider = ({ before, after, className }) => {
                 </div>
             </div>
 
-            {/* Draggable Handle */}
+            {/* Active Drag Area for better touch targets */}
             <div
-                className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-20 shadow-[0_0_10px_rgba(0,0,0,0.2)]"
-                style={{ left: `${sliderPosition}%` }}
+                className="absolute inset-0 cursor-ew-resize z-30"
                 onMouseDown={handleMouseDown}
-                onTouchStart={handleMouseDown}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+            />
+
+            {/* Draggable Handle Visual */}
+            <div
+                className="absolute top-0 bottom-0 w-1 bg-white pointer-events-none z-40 shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+                style={{ left: `${sliderPosition}%` }}
             >
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md text-primary transform hover:scale-110 transition-transform">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg text-primary transform scale-100 transition-transform">
                     <div className="flex gap-0.5">
                         <ChevronLeft className="w-4 h-4" />
                         <ChevronRight className="w-4 h-4" />
                     </div>
                 </div>
             </div>
-            {/* Input Range Overlay for Accessibility / Touch */}
-            <input
-                type="range"
-                min="0"
-                max="100"
-                value={sliderPosition}
-                onChange={(e) => setSliderPosition(Number(e.target.value))}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30"
-                aria-label="Comparison slider"
-            />
         </div>
     );
 };

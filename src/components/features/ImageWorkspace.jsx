@@ -9,7 +9,6 @@ import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/canvasUtils';
 import MaskCanvas from './MaskCanvas';
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import FloatingDock from '../layout/FloatingDock';
 import ScanningOverlay from '../ui/ScanningOverlay';
 
 const ImageWorkspace = ({ isPanelOpen, togglePanel }) => {
@@ -64,15 +63,15 @@ const ImageWorkspace = ({ isPanelOpen, togglePanel }) => {
     return (
         <div className="flex-1 h-full relative flex items-center justify-center bg-background overflow-hidden p-8">
             {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none"
+            <div className="absolute inset-0 opacity-20 pointer-events-none text-current"
                 style={{
-                    backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)',
+                    backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)',
                     backgroundSize: '30px 30px'
                 }}
             />
 
             {!selectedImage ? (
-                <label className="text-center space-y-4 cursor-pointer group">
+                <label className="text-center space-y-4 cursor-pointer group relative z-10">
                     <input
                         type="file"
                         accept="image/*"
@@ -81,7 +80,7 @@ const ImageWorkspace = ({ isPanelOpen, togglePanel }) => {
                             if (e.target.files[0]) uploadImage(e.target.files[0]);
                         }}
                     />
-                    <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 shadow-neon border border-primary/20 group-hover:scale-110 transition-transform duration-200 group-hover:shadow-neon">
+                    <div className="w-20 h-20 bg-gray-200 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 shadow-neon border border-primary/20 group-hover:scale-110 transition-transform duration-200 group-hover:shadow-neon">
                         <Upload className="w-8 h-8 text-primary/70 group-hover:text-primary transition-colors" />
                     </div>
                     <h3 className="text-xl font-bold text-text-main group-hover:text-primary transition-colors text-glow">No Image Selected</h3>
@@ -189,14 +188,30 @@ const ImageWorkspace = ({ isPanelOpen, togglePanel }) => {
                                             )}
                                         </TransformComponent>
 
-                                        {/* Floating Dock with Controls */}
-                                        <FloatingDock
-                                            zoomIn={() => zoomIn(0.5)}
-                                            zoomOut={() => zoomOut(0.5)}
-                                            resetTransform={() => resetTransform()}
-                                            isPanelOpen={isPanelOpen}
-                                            togglePanel={togglePanel}
-                                        />
+                                        {/* Zoom Controls */}
+                                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 glass-panel rounded-full px-3 py-2">
+                                            <button
+                                                onClick={() => zoomOut(0.5)}
+                                                className="p-2 rounded-full hover:bg-white/10 text-text-secondary hover:text-text-main transition-colors"
+                                                title="Zoom Out"
+                                            >
+                                                <ZoomOut className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => resetTransform()}
+                                                className="p-2 rounded-full hover:bg-white/10 text-text-secondary hover:text-text-main transition-colors"
+                                                title="Reset"
+                                            >
+                                                <Maximize className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => zoomIn(0.5)}
+                                                className="p-2 rounded-full hover:bg-white/10 text-text-secondary hover:text-text-main transition-colors"
+                                                title="Zoom In"
+                                            >
+                                                <ZoomIn className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     </>
                                 )}
                             </TransformWrapper>

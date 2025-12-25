@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
 import useHistory from '../hooks/useHistory';
 import AuthContext from './AuthContext';
+import { apiEndpoints } from '../lib/api';
+import { compressImage, validateImageFile, formatFileSize } from '../utils/imageCompression';
 
 export const ImageContext = createContext();
 
@@ -22,7 +24,11 @@ export const ImageProvider = ({ children }) => {
         contrast: 1.0,
         saturation: 1.0,
         autoEnhance: false,
-        removeBackground: false
+        removeBackground: false,
+        // New AI settings
+        filterPreset: 'none',
+        whiteBalance: false,
+        denoiseStrength: 0
     };
 
     const [settings, setSettings, undoSettings, redoSettings, canUndo, canRedo, historyLog, jumpToHistory, historyIndex] = useHistory(defaultSettings);
@@ -30,53 +36,84 @@ export const ImageProvider = ({ children }) => {
     const { authTokens } = useContext(AuthContext);
 
     const uploadImage = async (file) => {
+        // Validate file first
+        const validation = validateImageFile(file);
+        if (!validation.valid) {
+            console.error('Validation failed:', validation.error);
+            return;
+        }
+
         // Create local preview immediately
         const url = URL.createObjectURL(file);
         setOriginalImage(url);
         setProcessedImage(null);
-        setIsProcessing(false);
+        setIsProcessing(true); // Show loading state during compression
         // Reset history
         setSettings(defaultSettings);
 
-        // Upload to server
-        const formData = new FormData();
-        formData.append('original_image', file);
-        formData.append('title', file.name);
-
         try {
-            const response = await fetch('http://localhost:8000/api/images/', {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + (authTokens?.access || '')
-                },
-                body: formData
+            // Compress image before upload
+            const { file: compressedFile, originalSize, compressedSize, wasResized } = await compressImage(file, {
+                maxWidth: 4096,
+                maxHeight: 4096,
+                quality: 0.85
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                setCurrentProject(data);
-                console.log("Image uploaded successfully:", data);
-            } else {
-                console.error("Upload failed:", response.status, response.statusText);
-                if (response.status === 401) {
-                    alert("Session expired. Please Logout and Login again.");
+            // Log compression results
+            const savings = originalSize - compressedSize;
+            if (savings > 0) {
+                console.log(`Image compressed: ${formatFileSize(originalSize)} → ${formatFileSize(compressedSize)} (saved ${formatFileSize(savings)})`);
+            }
+            if (wasResized) {
+                console.log('Image was resized to fit within 4096x4096');
+            }
+
+            // Upload compressed file to server
+            const formData = new FormData();
+            formData.append('original_image', compressedFile);
+            formData.append('title', compressedFile.name);
+
+            try {
+                const response = await fetch(apiEndpoints.images, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + (authTokens?.access || '')
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setCurrentProject(data);
+                    console.log("Image uploaded successfully:", data);
                 } else {
-                    const errText = await response.text();
-                    alert(`Upload Failed (${response.status}): ${errText || response.statusText}`);
+                    console.error("Upload failed:", response.status, response.statusText);
+                    if (response.status === 401) {
+                        alert("Session expired. Please Logout and Login again.");
+                    } else {
+                        const errText = await response.text();
+                        alert(`Upload Failed (${response.status}): ${errText || response.statusText}`);
+                    }
+                    setOriginalImage(null);
                 }
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                alert(`Upload Connection Error: ${error.message}`);
                 setOriginalImage(null);
             }
-        } catch (error) {
-            console.error("Error uploading image:", error);
-            alert(`Upload Connection Error: ${error.message}`);
+        } catch (compressionError) {
+            console.error("Error compressing image:", compressionError);
+            alert(`Image Compression Error: ${compressionError.message}`);
             setOriginalImage(null);
+        } finally {
+            setIsProcessing(false);
         }
     }
 
 
     const fetchProjects = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/images/', {
+            const response = await fetch(apiEndpoints.images, {
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + (authTokens?.access || '')
@@ -116,7 +153,7 @@ export const ImageProvider = ({ children }) => {
                 ...payloadData
             };
 
-            const response = await fetch(`http://localhost:8000/api/images/${currentProject.id}/process_image/`, {
+            const response = await fetch(apiEndpoints.processImage(currentProject.id), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

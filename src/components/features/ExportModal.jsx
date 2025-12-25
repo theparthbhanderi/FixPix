@@ -4,6 +4,7 @@ import { Download, X, FileImage, Sliders } from 'lucide-react';
 import Button from '../ui/Button';
 import { cn } from '../../lib/utils';
 import { ImageContext } from '../../context/ImageContext';
+import { apiEndpoints } from '../../lib/api';
 
 const SettingsGroup = ({ label, children }) => (
     <div className="space-y-3">
@@ -21,7 +22,7 @@ const ExportModal = ({ isOpen, onClose }) => {
         if (!currentProject?.id) return;
 
         // Construct query URL
-        const baseUrl = `http://localhost:8000/api/images/${currentProject.id}/download/`;
+        const baseUrl = apiEndpoints.downloadImage(currentProject.id);
         const params = new URLSearchParams({
             format,
             quality: quality.toString()

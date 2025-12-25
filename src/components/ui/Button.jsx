@@ -15,7 +15,7 @@ const Button = ({
 }) => {
     const variants = {
         primary: "bg-primary text-white hover:bg-primary-hover shadow-neon border border-transparent hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.6)]",
-        secondary: "border border-white/20 text-white bg-white/5 hover:bg-white/10 hover:border-white/30 backdrop-blur-sm",
+        secondary: "border border-gray-200 dark:border-white/20 text-gray-700 dark:text-white bg-white dark:bg-white/5 hover:bg-gray-50 hover:dark:bg-white/10 hover:dark:border-white/30 hover:border-gray-300 backdrop-blur-sm",
         outline: "border border-primary text-primary hover:bg-primary/10",
         ghost: "text-text-secondary hover:text-text-main hover:bg-white/5",
         glow: "bg-accent-purple text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:bg-accent-purple/80 hover:shadow-[0_0_25px_rgba(168,85,247,0.7)]",
